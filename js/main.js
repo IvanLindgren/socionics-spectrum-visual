@@ -676,8 +676,21 @@ shareBtn?.addEventListener('click', async ()=>{
     const ok = deserializeState(token);
     if (ok){
       uiStage = 2; showMusicPanels(true);
-      // сразу сгенерируем музыку для просмотра результата
-      els.musicBtn.click();
+      // автозапуск музыки должен происходить только после пользовательского жеста (политика браузеров)
+      // поэтому ожидаем первый жест (клик/клавиша) и затем инициируем генерацию
+      const unlockAndStart = ()=>{
+        // попытка разблокировать аудиоконтекст (если уже создан)
+        ensureCtx().catch(()=>{}).finally(()=>{
+          els.musicBtn.click();
+        });
+      };
+      window.addEventListener('pointerdown', unlockAndStart, { once: true, passive: true });
+      window.addEventListener('keydown', unlockAndStart, { once: true });
+      // подчёркнём пользователю, что нужно нажать для запуска
+      if (els.musicBtn){
+        els.musicBtn.classList.add('primary');
+        els.musicBtn.textContent = '♪ Нажмите, чтобы воспроизвести';
+      }
     }
   }
 })();
