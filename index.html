@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Соционический тип как сигнал</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="css/style.css" rel="stylesheet" />
+</head>
+<body class="theme-dark">
+  <header class="topbar">
+    <h1>Музыкальный тип</h1>
+    <div class="actions">
+      <button id="guide-btn" class="ghost">Учебник</button>
+      <button id="help-btn" class="ghost">?</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="left">
+      <div class="card">
+        <div class="progress">
+          <div id="progress-fill"></div>
+          <div id="progress-text" class="progress-text">1 / 15</div>
+        </div>
+
+        <h2 id="trait-name">—</h2>
+        <p id="trait-description" class="muted">—</p>
+
+        <div class="slider-row">
+          <span id="neg-label" class="pole pole--neg">—</span>
+          <div class="slider-wrap">
+            <input id="trait-slider" type="range" min="-1" max="1" step="0.01" value="0" />
+            <span id="slider-bubble">0%</span>
+          </div>
+          <span id="pos-label" class="pole pole--pos">—</span>
+        </div>
+
+        <div class="value-chip" id="value-chip">
+          <span id="value-chip-side">—</span>
+          <span id="value-chip-pct">0%</span>
+        </div>
+
+        <div id="trait-inspect" class="trait-inspect">
+          <div><strong>В сигнал:</strong> <span id="inspect-signal">—</span></div>
+          <div><strong>В музыку:</strong> <span id="inspect-music">—</span></div>
+        </div>
+
+        <div class="nav-row">
+          <button id="prev-btn" class="ghost">← Назад</button>
+          <button id="fallback-btn" class="ghost">10 вопросов для признака</button>
+          <button id="next-btn" class="primary">Дальше →</button>
+        </div>
+      </div>
+
+      <div class="card controls-card">
+        <div class="legend" id="legend"></div>
+
+        <div class="toggle-row">
+          <label class="toggle"><input id="delta-toggle" type="checkbox" /> Показать Δ‑вклад активного признака</label>
+        </div>
+
+        <div class="player-row">
+          <button id="music-btn" class="primary">♪ Сгенерировать музыку</button>
+          <button id="stop-btn" class="ghost">■ Стоп</button>
+          <button id="export-btn" class="ghost">⤓ Экспорт музыки WAV</button>
+          <button id="share-btn" class="ghost">🔗 Поделиться</button>
+        </div>
+
+        <div class="eq-row hidden">
+          <label>НЧ
+            <input id="eq-low" type="range" min="-12" max="12" step="1" value="0" />
+            <span class="eq-meter"><i id="meter-low"></i></span>
+          </label>
+          <label>СЧ
+            <input id="eq-mid" type="range" min="-12" max="12" step="1" value="0" />
+            <span class="eq-meter"><i id="meter-mid"></i></span>
+          </label>
+          <label>ВЧ
+            <input id="eq-high" type="range" min="-12" max="12" step="1" value="0" />
+            <span class="eq-meter"><i id="meter-high"></i></span>
+          </label>
+        </div>
+
+        <div class="upload-row hidden">
+          <input id="user-audio" type="file" accept="audio/*" />
+          <button id="apply-to-audio" class="ghost">Применить тип к аудио</button>
+          <button id="export-processed" class="ghost">Экспорт обработанного</button>
+        </div>
+
+        <div class="info-row muted" style="font-size:13px; margin-top:6px">
+          Как формируется музыка: каждый признак создаёт свою волну. Мы переводим частоты в ноты,
+          сила признака становится громкостью, полюс влияет на панораму и тембр, а группы признаков задают ритм и эффекты.
+        </div>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="eq-visual hidden">
+        <canvas id="eq-visual" width="640" height="360"></canvas>
+      </div>
+
+      <div class="waves2d hidden">
+        <canvas id="wave-plot" height="120"></canvas>
+      </div>
+
+      <div class="ridge2d hidden">
+        <canvas id="ridge-plot" height="220"></canvas>
+      </div>
+
+      <div class="specstrip2d hidden">
+        <canvas id="spec-strip" height="48"></canvas>
+      </div>
+
+      <div class="analysis hidden" id="analysis">
+        <div class="metrics">
+          <div><span class="m-label">RMS</span><span id="m-rms">—</span></div>
+          <div><span class="m-label">Peak</span><span id="m-peak">—</span></div>
+          <div><span class="m-label">Crest</span><span id="m-crest">—</span></div>
+          <div><span class="m-label">Centroid</span><span id="m-centroid">—</span></div>
+        </div>
+        <div class="spectrum" id="spectrum"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="help-modal" class="help-dialog">
+    <h3>Как это работает</h3>
+    <p>Сильные признаки становятся ведущими голосами: их частоты квантуются в ноты, амплитуда становится громкостью, полюса влияют на тембр/панораму, группы признаков управляют ритмом и эффектами. Сумма — ваш «музыкальный отпечаток».</p>
+    <div class="modal-actions">
+      <button id="help-close" class="ghost">Закрыть</button>
+      <button id="help-ok" class="primary">Окей</button>
+    </div>
+  </dialog>
+
+  <dialog id="guide-modal" class="help-dialog">
+    <h3>Быстрый учебник</h3>
+    <div id="guide-content" class="guide-content"></div>
+    <div class="modal-actions">
+      <button id="guide-skip" class="ghost">Пропустить</button>
+      <div class="spacer"></div>
+      <button id="guide-prev" class="ghost">Назад</button>
+      <button id="guide-next" class="primary">Далее</button>
+    </div>
+  </dialog>
+
+  <div id="trait-tooltip" class="tooltip hidden"></div>
+
+  <script type="module" src="data.js"></script>
+  <script type="module" src="js/audio.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
